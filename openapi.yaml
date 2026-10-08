@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: Regel Uppgiftskommentar API
+  version: 1.0.0
+  description: >
+    Hanterar registrering av uppgiftskommentar.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /uppgiftskommentar/{handlaggningId}:
+    patch:
+      tags: [UppgiftskommentarController]
+      operationId: patchUppgiftskommentar
+      summary: Registrera uppgiftskommentar
+      description: >
+        Sparar handläggarens kommentar för uppgiften.
+      parameters:
+        - $ref: "#/components/parameters/HandlaggningId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchUppgiftskommentarRequest"
+      responses:
+        "204":
+          description: Uppgiftskommentar registrerad OK
+        "400":
+          description: Ogiltig begäran
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Ej autentiserad
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Åtkomst nekad
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Handläggningsärendet hittades inte
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internt serverfel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer-token utfärdat av identitetsleverantören. Ramverket extraherar handläggarens identitet från token.
+
+  parameters:
+    HandlaggningId:
+      name: handlaggningId
+      in: path
+      required: true
+      description: ID för handläggningsärendet
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-statuskod
+          example: 404
+        message:
+          type: string
+          description: Beskrivning av felet
+          example: Handläggningsärendet hittades inte
+
+    PatchUppgiftskommentarRequest:
+      type: object
+      required:
+        - kommentar
+      properties:
+        kommentar:
+          type: string
+          description: Handläggarens kommentar till uppgiften.
